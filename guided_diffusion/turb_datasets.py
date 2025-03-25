@@ -73,8 +73,8 @@ class TurbDataset(Dataset):
     def __getitem__(self, idx):
         idx += self.start_idx
 
-        with h5py.File(self.dataset_path, 'r', driver='mpio', comm=MPI.COMM_SELF) as f:
-        #with h5py.File(self.dataset_path, 'r') as f:  # replace the above line with this line for serial h5py
+        # with h5py.File(self.dataset_path, 'r', driver='mpio', comm=MPI.COMM_SELF) as f:
+        with h5py.File(self.dataset_path, 'r') as f:  # replace the above line with this line for serial h5py
             data = f[self.dataset_name][idx].astype(np.float32)
             data = np.moveaxis(data, -1, 0)
 

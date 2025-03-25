@@ -31,8 +31,8 @@ def load_data(
     rank = comm.Get_rank()
     size = comm.Get_size()
 
-    with h5py.File(dataset_path, 'r', driver='mpio', comm=MPI.COMM_SELF) as f:
-    #with h5py.File(dataset_path, 'r') as f:  # replace the above line with this line for serial h5py
+    #with h5py.File(dataset_path, 'r', driver='mpio', comm=MPI.COMM_SELF) as f:
+    with h5py.File(dataset_path, 'r') as f:  # replace the above line with this line for serial h5py
         len_dataset = f[dataset_name].len()
 
     chunk_size = len_dataset // size

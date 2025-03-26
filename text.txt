@@ -1,0 +1,14 @@
+# Set the flags
+DATA_FLAGS="--dataset_path datasets/trajectories_normalized-1.h5 --dataset_name train"
+MODEL_FLAGS="--dims 1 --image_size 300 --in_channels 4 --num_channels 32 --num_res_blocks 2 --attention_resolutions 150,75 --channel_mult 1,2,4"
+DIFFUSION_FLAGS="--diffusion_steps 800 --noise_schedule tanh6,1"
+TRAIN_FLAGS="--lr 1e-4 --batch_size 8 --lr_anneal_steps 500000 --save_interval 10000"
+
+# Training command
+python scripts/turb_train.py $DATA_FLAGS $MODEL_FLAGS $DIFFUSION_FLAGS $TRAIN_FLAGS
+
+# Set sampling flags
+SAMPLE_FLAGS="--num_samples 16 --batch_size 8 --model_path /content/model_checkpoints/ema_0.9999_250000.pt"
+
+# Sampling command
+python scripts/turb_sample.py $SAMPLE_FLAGS $MODEL_FLAGS $DIFFUSION_FLAGS

@@ -95,7 +95,7 @@ def main():
         label_arr = label_arr[: args.num_samples]
     if dist.get_rank() == 0:
         shape_str = "x".join([str(x) for x in arr.shape])
-        out_path = os.path.join("/content/drive/diff_lagr/samples/", f"samples_{shape_str}.npz")
+        out_path = os.path.join("/content/drive/MyDrive/diff_lagr/samples/", f"samples_{shape_str}.npz")
         logger.log(f"saving to {out_path}")
         if args.class_cond:
             np.savez(out_path, arr, label_arr)

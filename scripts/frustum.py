@@ -139,7 +139,7 @@ def apply_frustum_mask(points, mask):
         # Return as (N, K, 3)
         return masked_points
 
-def visualize_frustum_and_points(original_points, masked_points, fov_angle=45, initial_radius=0.1):
+def visualize_frustum_and_points(original_points, masked_points, fov_angle=45, initial_radius=0.6):
     """
     Visualize original and masked points in 3D with frustum outline.
     Takes PyTorch tensors as input but converts to NumPy for visualization.
@@ -186,7 +186,7 @@ def visualize_frustum_and_points(original_points, masked_points, fov_angle=45, i
     # Plot original points
     ax.scatter(
         x_orig, y_orig, z_orig,
-        color='lightgray', alpha=0.5, label='Original Points'
+        color='lightgray',s=1, alpha=0.8, label='Original Noise'
     )
     
     # Plot masked points (non-zero only)
@@ -204,7 +204,7 @@ def visualize_frustum_and_points(original_points, masked_points, fov_angle=45, i
         
         ax.scatter(
             x_masked, y_masked, z_masked,
-            color='blue', alpha=0.8, label='Points Inside Frustum'
+            color='blue', alpha=0.8, label='Valid Points'
         )
     
     # Draw frustum outline
@@ -261,9 +261,9 @@ def visualize_frustum_and_points(original_points, masked_points, fov_angle=45, i
     
     # Set labels and title
     ax.set_xlabel('X')
-    ax.set_ylabel('Y (Depth)')
+    ax.set_ylabel('Y')
     ax.set_zlabel('Z')
-    ax.set_title(f'3D Points with Frustum (FOV: {fov_angle}°, Initial Radius: {initial_radius})')
+    ax.set_title(f'Noise with Frustum (FOV: {fov_angle}°, Initial Radius: {initial_radius})')
     ax.legend()
     
     # Set view limits
@@ -283,7 +283,7 @@ def visualize_frustum_and_points(original_points, masked_points, fov_angle=45, i
 def generate_test_data():
     
     # Test with (N, K, 3) shape
-    N, K = 100, 280
+    N, K = 50, 280
     points_NxKx3 = torch.randn((N, K, 3))
     points_NxKx3 = points_NxKx3.clamp(-1, 1)
     
@@ -296,9 +296,9 @@ if __name__ == "__main__":
     
     # Test with (N, K, 3) format
     print("\nTesting with (N, K, 3) format:")
-    mask_NKx3 = create_frustum_mask(points_NxKx3, fov_angle=45, initial_radius=0.2)
+    mask_NKx3 = create_frustum_mask(points_NxKx3, fov_angle=45, initial_radius=0.6)
     print(f"Points shape: {points_NxKx3.shape}, Mask shape: {mask_NKx3.shape}")
     masked_points_NKx3 = apply_frustum_mask(points_NxKx3, mask_NKx3)
     print(f"Masked points shape: {masked_points_NKx3.shape}")
     print(f"Points inside frustum: {mask_NKx3.sum().item()} out of {mask_NKx3.numel()} ({mask_NKx3.sum().item()/mask_NKx3.numel()*100:.1f}%)")
-    visualize_frustum_and_points(points_NxKx3, masked_points_NKx3, fov_angle=45, initial_radius=0.2)
+    visualize_frustum_and_points(points_NxKx3, masked_points_NKx3, fov_angle=45, initial_radius=0.6)

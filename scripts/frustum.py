@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
-def create_frustum_mask(points, fov_angle=45, initial_radius=0.1, near=-1, far=1.0):
+def create_frustum_mask(points, fov_angle=45, initial_radius=0.6, near=-1, far=1.0):
     """
     Create a frustum mask for an array of 3D points with Y as the depth axis.
     Exclusively works with PyTorch tensors.

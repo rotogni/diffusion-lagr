@@ -13,7 +13,7 @@ import torch as th
 
 from .nn import mean_flat
 from .losses import normal_kl, discretized_gaussian_log_likelihood
-from scripts import frustrum
+from scripts import frustum
 
 def get_named_beta_schedule(schedule_name, num_diffusion_timesteps):
     """
@@ -447,6 +447,8 @@ class GaussianDiffusion:
             model_kwargs=model_kwargs,
         )
         noise = th.randn_like(x)
+        mask = frustum.create_frustum_mask(points = noise, fov_angle=45,initial_radius=0.5)
+        noise  = frustum.apply_frustum_mask(points = noise, mask = mask )
         nonzero_mask = (
             (t != 0).float().view(-1, *([1] * (len(x.shape) - 1)))
         )  # no noise when t == 0
@@ -582,9 +584,6 @@ class GaussianDiffusion:
             img = noise
         else:
             img = th.randn(*shape, device=device)
-            # apply frustrum 
-            mask = frustrum.create_frustum_mask(points = img, fov_angle=45,initial_radius=0.2)
-            img = frustrum.apply_frustum_mask(img, mask)
         indices = list(range(self.num_timesteps))[::-1]
 
         if progress:

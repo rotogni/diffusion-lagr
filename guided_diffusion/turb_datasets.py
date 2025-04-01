@@ -83,5 +83,5 @@ class TurbDataset(Dataset):
                 init_cond = f[self.dataset_name + '_init'][idx].astype(np.float32)
                 init_cond = np.moveaxis(init_cond, -1, 0)
                 out_dict['x_cond'] = init_cond
-            else: init_cond = None
+                print(f'init_cond_shape: {init_cond.shape}')
         return data, out_dict

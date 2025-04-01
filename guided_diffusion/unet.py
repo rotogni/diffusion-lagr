@@ -499,6 +499,13 @@ class UNetModel(nn.Module):
                 nn.SiLU(),
                 linear(time_embed_dim, time_embed_dim),
             )
+        print(f"=== INITIAL CONDITION ENCODER CREATED ===")
+        print(f"in_channels: {in_channels}")
+        print(f"model_channels: {model_channels}")
+        print(f"time_embed_dim: {time_embed_dim}")
+        print(f"Expected flattened size: {model_channels * 4 * 4 * 4}")
+        print(f"Encoder architecture: {self.cond_encoder}")
+        print(f"=== END ENCODER DEBUG INFO ===")
         ##############################################################################
 
         ch = input_ch = int(channel_mult[0] * model_channels)

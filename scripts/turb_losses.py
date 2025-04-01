@@ -41,6 +41,7 @@ def main():
         dataset_name=args.dataset_name,
         batch_size=args.batch_size,
         class_cond=args.class_cond,
+        init_cond=args.init_cond, 
         deterministic=True,
     )
 
@@ -91,7 +92,7 @@ def run_losses_evaluation(model, diffusion, data, num_samples):
 
 def create_argparser():
     defaults = dict(
-        dataset_path="", dataset_name="", clip_denoised=True, num_samples=1000, batch_size=1, model_path=""
+        dataset_path="", dataset_name="", clip_denoised=True, num_samples=1000, batch_size=1, model_path="",init_cond=False, 
     )
     defaults.update(model_and_diffusion_defaults())
     parser = argparse.ArgumentParser()

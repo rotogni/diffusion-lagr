@@ -70,6 +70,7 @@ def model_and_diffusion_defaults():
         resblock_updown=False,
         use_fp16=False,
         use_new_attention_order=False,
+        init_cond = False,
     )
     res.update(diffusion_defaults())
     return res
@@ -107,6 +108,7 @@ def create_model_and_diffusion(
     resblock_updown,
     use_fp16,
     use_new_attention_order,
+    init_cond=False,
 ):
     model = create_model(
         dims,
@@ -127,6 +129,7 @@ def create_model_and_diffusion(
         resblock_updown=resblock_updown,
         use_fp16=use_fp16,
         use_new_attention_order=use_new_attention_order,
+        init_cond=init_cond,
     )
     diffusion = create_gaussian_diffusion(
         steps=diffusion_steps,
@@ -160,6 +163,9 @@ def create_model(
     resblock_updown=False,
     use_fp16=False,
     use_new_attention_order=False,
+    #####################################################################
+    init_cond = False,
+    #####################################################################
 ):
     if channel_mult == "":
         if image_size == 512:
@@ -189,7 +195,7 @@ def create_model(
         dropout=dropout,
         channel_mult=channel_mult,
         dims=dims,
-        num_classes=(NUM_CLASSES if class_cond else None),
+        num_classes= None, # Changed from (NUM_CLASSES if class_cond else None)
         use_checkpoint=use_checkpoint,
         use_fp16=use_fp16,
         num_heads=num_heads,
@@ -198,6 +204,9 @@ def create_model(
         use_scale_shift_norm=use_scale_shift_norm,
         resblock_updown=resblock_updown,
         use_new_attention_order=use_new_attention_order,
+        #################################
+        use_encoder_conditioning=init_cond
+        #################################
     )
 
 
@@ -317,6 +326,7 @@ def sr_create_model_and_diffusion(
     use_scale_shift_norm,
     resblock_updown,
     use_fp16,
+    init_cond=False,
 ):
     model = sr_create_model(
         large_size,
@@ -334,6 +344,7 @@ def sr_create_model_and_diffusion(
         dropout=dropout,
         resblock_updown=resblock_updown,
         use_fp16=use_fp16,
+        init_cond= init_cond,
     )
     diffusion = create_gaussian_diffusion(
         steps=diffusion_steps,
@@ -364,6 +375,9 @@ def sr_create_model(
     dropout,
     resblock_updown,
     use_fp16,
+    ###################################################
+    init_cond=False
+    ###################################################
 ):
     _ = small_size  # hack to prevent unused variable
 
@@ -389,7 +403,7 @@ def sr_create_model(
         attention_resolutions=tuple(attention_ds),
         dropout=dropout,
         channel_mult=channel_mult,
-        num_classes=(NUM_CLASSES if class_cond else None),
+        num_classes=None,  # Changed from (NUM_CLASSES if class_cond else None)
         use_checkpoint=use_checkpoint,
         num_heads=num_heads,
         num_head_channels=num_head_channels,
@@ -397,6 +411,10 @@ def sr_create_model(
         use_scale_shift_norm=use_scale_shift_norm,
         resblock_updown=resblock_updown,
         use_fp16=use_fp16,
+        ###################################################
+        use_encoder_conditioning=init_cond
+        ###################################################
+
     )
 
 

@@ -56,6 +56,7 @@ class TurbDataset(Dataset):
         self,
         dataset_path,
         dataset_name,
+        class_cond,
         init_cond,
         start_idx,
         chunk_size,
@@ -64,6 +65,7 @@ class TurbDataset(Dataset):
         self.dataset_path = dataset_path
         self.dataset_name = dataset_name
         self.init_cond = init_cond
+        self.class_cond = class_cond
         self.start_idx  = start_idx
         self.chunk_size = chunk_size
 

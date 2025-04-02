@@ -55,6 +55,18 @@ def main():
     th.manual_seed(seed)
     while len(all_images) * args.batch_size < args.num_samples:
         model_kwargs = {}
+        #########################################################################
+        # For empty initial conditions - create a tensor of zeros
+        # This will be passed as x_cond to the model
+        empty_initial_conditions = th.zeros(
+            (args.batch_size, args.in_channels, 10),
+            dtype=th.float32,
+            device=dist_util.dev()
+        )
+        if args.init_cond:
+            model_kwargs["x_cond"] = empty_initial_conditions
+
+       #########################################################################
         if args.class_cond:
             classes = th.randint(
                 low=0, high=NUM_CLASSES, size=(args.batch_size,), device=dist_util.dev()
@@ -113,6 +125,9 @@ def create_argparser():
         batch_size=16,
         use_ddim=False,
         model_path="",
+        #######################################
+        init_cond= False,
+        #######################################
     )
     defaults.update(model_and_diffusion_defaults())
     parser = argparse.ArgumentParser()

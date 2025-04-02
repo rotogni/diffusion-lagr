@@ -63,7 +63,13 @@ def main():
             dtype=th.float32,
             device=dist_util.dev()
         )
-        if args.init_cond:
+        if args.init_path is not None:
+            initial_conditions = th.tensor(np.load(args.init_path))
+            # reshape
+            initial_conditions = th.transpose(initial_conditions, 1, 2)
+            assert(initial_conditions.shape == empty_initial_conditions.shape)
+            model_kwargs["x_cond"] = initial_conditions
+        else:
             model_kwargs["x_cond"] = empty_initial_conditions
 
        #########################################################################
@@ -127,6 +133,7 @@ def create_argparser():
         model_path="",
         #######################################
         init_cond= False,
+        init_path= None,
         #######################################
     )
     defaults.update(model_and_diffusion_defaults())

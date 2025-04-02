@@ -687,6 +687,8 @@ class UNetModel(nn.Module):
             assert x_cond.shape[0] == x.shape[0]
             # Process initial conditions using the encoder
             cond_emb = self.cond_encoder(x_cond)
+            print(f'cond_emb shape: {cond_emb.shape} ')
+            print(f'emb shape: {emb.shape} ')
             # Add conditioning embedding to timestep embedding
             emb = emb + cond_emb
         #######################################################

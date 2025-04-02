@@ -64,7 +64,7 @@ def main():
             device=dist_util.dev()
         )
         if args.init_path is not None:
-            initial_conditions = th.tensor(np.load(args.init_path))
+            initial_conditions = th.tensor(np.load(args.init_path), dtype=th.float32,device=dist_util.dev())
             # reshape
             initial_conditions = th.transpose(initial_conditions, 1, 2)
             assert(initial_conditions.shape == empty_initial_conditions.shape)

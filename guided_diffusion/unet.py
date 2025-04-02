@@ -479,33 +479,23 @@ class UNetModel(nn.Module):
             linear(time_embed_dim, time_embed_dim),
         )
 
+        print(f"time embeder architecture: {self.time_embed}")
+
         if self.num_classes is not None:
             self.label_emb = nn.Embedding(num_classes, time_embed_dim)
 
         ##############################################################################
-        if use_encoder_conditioning:
-            self.cond_encoder = nn.Sequential(
-                nn.Conv2d(in_channels, model_channels, kernel_size=3, padding=1),
-                nn.SiLU(),
-                nn.Conv2d(model_channels, model_channels * 2, kernel_size=3, padding=1, stride=2),
-                nn.SiLU(),
-                nn.Conv2d(model_channels * 2, model_channels * 4, kernel_size=3, padding=1, stride=2),
-                nn.SiLU(),
-                nn.AdaptiveAvgPool2d((4, 4)), 
-                nn.Flatten(),
-                nn.Linear(model_channels * 4 * 4 * 4, model_channels),
-                nn.SiLU(),
-                linear(model_channels, time_embed_dim),
-                nn.SiLU(),
-                linear(time_embed_dim, time_embed_dim),
-            )
-        print(f"=== INITIAL CONDITION ENCODER CREATED ===")
-        print(f"in_channels: {in_channels}")
-        print(f"model_channels: {model_channels}")
-        print(f"time_embed_dim: {time_embed_dim}")
-        print(f"Expected flattened size: {model_channels * 4 * 4 * 4}")
-        print(f"Encoder architecture: {self.cond_encoder}")
-        print(f"=== END ENCODER DEBUG INFO ===")
+        self.cond_encoder = nn.Sequential(
+            nn.Flatten(1),  # Flatten the spatial dimensions: (B, 10, 3) -> (B, 30)
+            nn.Linear(10 * 3, model_channels),  # Project to model_channels first
+            nn.SiLU(),
+            nn.Linear(model_channels, time_embed_dim),  # Then to time_embed_dim
+            nn.SiLU(),
+            nn.Linear(time_embed_dim, time_embed_dim),  # Keep this part from original
+        )
+        
+        print(f"Cond Encoder architecture: {self.cond_encoder}")
+        
         ##############################################################################
 
         ch = input_ch = int(channel_mult[0] * model_channels)
@@ -683,12 +673,10 @@ class UNetModel(nn.Module):
             emb = emb + self.label_emb(y)
 
         #######################################################
-        if self.use_encoder_conditioning and x_cond is not None:
+        if x_cond is not None:
             assert x_cond.shape[0] == x.shape[0]
             # Process initial conditions using the encoder
             cond_emb = self.cond_encoder(x_cond)
-            print(f'cond_emb shape: {cond_emb.shape} ')
-            print(f'emb shape: {emb.shape} ')
             # Add conditioning embedding to timestep embedding
             emb = emb + cond_emb
         #######################################################

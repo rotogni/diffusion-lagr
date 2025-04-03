@@ -55,6 +55,24 @@ def main():
     th.manual_seed(seed)
     while len(all_images) * args.batch_size < args.num_samples:
         model_kwargs = {}
+        #########################################################################
+        # For empty initial conditions - create a tensor of zeros
+        # This will be passed as x_cond to the model
+        empty_initial_conditions = th.zeros(
+            (args.batch_size, args.in_channels, 10),
+            dtype=th.float32,
+            device=dist_util.dev()
+        )
+        if args.init_path is not None:
+            initial_conditions = th.tensor(np.load(args.init_path), dtype=th.float32,device=dist_util.dev())
+            # reshape
+            initial_conditions = th.transpose(initial_conditions, 1, 2)
+            assert(initial_conditions.shape == empty_initial_conditions.shape)
+            model_kwargs["x_cond"] = initial_conditions
+        else:
+            model_kwargs["x_cond"] = empty_initial_conditions
+
+       #########################################################################
         if args.class_cond:
             classes = th.randint(
                 low=0, high=NUM_CLASSES, size=(args.batch_size,), device=dist_util.dev()
@@ -95,7 +113,7 @@ def main():
         label_arr = label_arr[: args.num_samples]
     if dist.get_rank() == 0:
         shape_str = "x".join([str(x) for x in arr.shape])
-        out_path = os.path.join(logger.get_dir(), f"samples_{shape_str}.npz")
+        out_path = os.path.join("/content/drive/MyDrive/diff-lagr/samples/", f"samples_{shape_str}.npz")
         logger.log(f"saving to {out_path}")
         if args.class_cond:
             np.savez(out_path, arr, label_arr)
@@ -113,6 +131,10 @@ def create_argparser():
         batch_size=16,
         use_ddim=False,
         model_path="",
+        #######################################
+        init_cond= False,
+        init_path= None,
+        #######################################
     )
     defaults.update(model_and_diffusion_defaults())
     parser = argparse.ArgumentParser()

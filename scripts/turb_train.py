@@ -35,6 +35,9 @@ def main():
         dataset_name=args.dataset_name,
         batch_size=args.batch_size,
         class_cond=args.class_cond,
+        ###############################################################
+        init_cond=args.init_cond,
+        ###############################################################
     )
 
     logger.log("training...")
@@ -73,6 +76,9 @@ def create_argparser():
         resume_checkpoint="",
         use_fp16=False,
         fp16_scale_growth=1e-3,
+        ###############################################################
+        init_cond=False,
+        ###############################################################
     )
     defaults.update(model_and_diffusion_defaults())
     parser = argparse.ArgumentParser()

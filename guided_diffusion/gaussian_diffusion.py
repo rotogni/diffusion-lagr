@@ -582,6 +582,8 @@ class GaussianDiffusion:
             img = noise
         else:
             img = th.randn(*shape, device=device)
+            print(img.shape)
+            print(img.max().item())
         indices = list(range(self.num_timesteps))[::-1]
 
         if progress:

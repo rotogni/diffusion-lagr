@@ -422,6 +422,7 @@ class UNetModel(nn.Module):
     :param resblock_updown: use residual blocks for up/downsampling.
     :param use_new_attention_order: use a different attention pattern for potentially
                                     increased efficiency.
+    :use_encoder_conditioning= if true use initial conditioning
     """
 
     def __init__(
@@ -445,6 +446,7 @@ class UNetModel(nn.Module):
         use_scale_shift_norm=False,
         resblock_updown=False,
         use_new_attention_order=False,
+        use_encoder_conditioning = False,
     ):
         super().__init__()
 
@@ -466,7 +468,10 @@ class UNetModel(nn.Module):
         self.num_heads = num_heads
         self.num_head_channels = num_head_channels
         self.num_heads_upsample = num_heads_upsample
-
+        ##############################################################################
+        self.encoder_channels = in_channels,
+        self.use_encoder_conditioning = use_encoder_conditioning,
+        ##############################################################################
         time_embed_dim = model_channels * 4
         self.time_embed = nn.Sequential(
             linear(model_channels, time_embed_dim),
@@ -474,8 +479,24 @@ class UNetModel(nn.Module):
             linear(time_embed_dim, time_embed_dim),
         )
 
+         #print(f"time embeder architecture: {self.time_embed}")
+
         if self.num_classes is not None:
             self.label_emb = nn.Embedding(num_classes, time_embed_dim)
+
+        ##############################################################################
+        self.cond_encoder = nn.Sequential(
+            nn.Flatten(1),  # Flatten the spatial dimensions: (B, 10, 3) -> (B, 30)
+            nn.Linear(10 * 3, model_channels),  # Project to model_channels first
+            nn.SiLU(),
+            nn.Linear(model_channels, time_embed_dim),  # Then to time_embed_dim
+            nn.SiLU(),
+            nn.Linear(time_embed_dim, time_embed_dim),  # Keep this part from original
+        )
+        
+         #print(f"Cond Encoder architecture: {self.cond_encoder}")
+        
+        ##############################################################################
 
         ch = input_ch = int(channel_mult[0] * model_channels)
         self.input_blocks = nn.ModuleList(
@@ -631,7 +652,7 @@ class UNetModel(nn.Module):
         self.middle_block.apply(convert_module_to_f32)
         self.output_blocks.apply(convert_module_to_f32)
 
-    def forward(self, x, timesteps, y=None):
+    def forward(self, x, timesteps, x_cond=None, y=None):
         """
         Apply the model to an input batch.
 
@@ -650,6 +671,15 @@ class UNetModel(nn.Module):
         if self.num_classes is not None:
             assert y.shape == (x.shape[0],)
             emb = emb + self.label_emb(y)
+
+        #######################################################
+        if x_cond is not None:
+            assert x_cond.shape[0] == x.shape[0]
+            # Process initial conditions using the encoder
+            cond_emb = self.cond_encoder(x_cond)
+            # Add conditioning embedding to timestep embedding
+            emb = emb + cond_emb
+        #######################################################
 
         h = x.type(self.dtype)
         for module in self.input_blocks:
@@ -673,12 +703,19 @@ class SuperResModel(UNetModel):
     def __init__(self, image_size, in_channels, *args, **kwargs):
         super().__init__(image_size, in_channels * 2, *args, **kwargs)
 
-    def forward(self, x, timesteps, low_res=None, **kwargs):
+    #def forward(self, x, timesteps, low_res=None, **kwargs):
+    #    _, _, new_height, new_width = x.shape
+    #    upsampled = F.interpolate(low_res, (new_height, new_width), mode="bilinear")
+    #    x = th.cat([x, upsampled], dim=1)
+    #    return super().forward(x, timesteps, **kwargs)
+    
+    ##############################################################
+    def forward(self, x, timesteps, low_res=None, x_cond=None, **kwargs):
         _, _, new_height, new_width = x.shape
         upsampled = F.interpolate(low_res, (new_height, new_width), mode="bilinear")
         x = th.cat([x, upsampled], dim=1)
-        return super().forward(x, timesteps, **kwargs)
-
+        return super().forward(x, timesteps, x_cond=x_cond, **kwargs)
+    ##############################################################
 
 class EncoderUNetModel(nn.Module):
     """

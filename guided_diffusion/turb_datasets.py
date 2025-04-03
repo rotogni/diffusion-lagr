@@ -40,7 +40,7 @@ def load_data(
     start_idx  = rank * chunk_size
 
     dataset = TurbDataset(
-        dataset_path, dataset_name, init_cond, start_idx, chunk_size,
+        dataset_path, dataset_name, class_cond, init_cond, start_idx, chunk_size,
     )
 
     shuffle = True if deterministic else False

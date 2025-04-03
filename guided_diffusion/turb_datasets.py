@@ -9,6 +9,7 @@ def load_data(
     dataset_path,
     dataset_name,
     batch_size,
+    class_cond=False,
     init_cond=False,
     deterministic=False,
 ):
@@ -85,5 +86,6 @@ class TurbDataset(Dataset):
                 init_cond = f[self.dataset_name + '_init'][idx].astype(np.float32)
                 init_cond = np.moveaxis(init_cond, -1, 0)
                 out_dict['x_cond'] = init_cond
-                print(f'init_cond_shape: {init_cond.shape}')
+                # print(f'init_cond_shape: {init_cond.shape}')
+            ######################################################################
         return data, out_dict

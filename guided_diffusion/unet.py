@@ -479,7 +479,7 @@ class UNetModel(nn.Module):
             linear(time_embed_dim, time_embed_dim),
         )
 
-        print(f"time embeder architecture: {self.time_embed}")
+        #print(f"time embeder architecture: {self.time_embed}")
 
         if self.num_classes is not None:
             self.label_emb = nn.Embedding(num_classes, time_embed_dim)
@@ -494,7 +494,7 @@ class UNetModel(nn.Module):
             nn.Linear(time_embed_dim, time_embed_dim),  # Keep this part from original
         )
         
-        print(f"Cond Encoder architecture: {self.cond_encoder}")
+        #print(f"Cond Encoder architecture: {self.cond_encoder}")
         
         ##############################################################################
 

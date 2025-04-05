@@ -10,6 +10,7 @@ def load_data(
     dataset_name,
     batch_size,
     init_cond=False,
+    class_cond=False,
     deterministic=False,
 ):
     """
@@ -39,7 +40,7 @@ def load_data(
     start_idx  = rank * chunk_size
 
     dataset = TurbDataset(
-        dataset_path, dataset_name, init_cond, start_idx, chunk_size,
+        dataset_path, dataset_name, class_cond, init_cond, start_idx, chunk_size,
     )
 
     shuffle = True if deterministic else False
@@ -85,5 +86,5 @@ class TurbDataset(Dataset):
                 init_cond = f[self.dataset_name + '_init'][idx].astype(np.float32)
                 init_cond = np.moveaxis(init_cond, -1, 0)
                 out_dict['x_cond'] = init_cond
-                print(f'init_cond_shape: {init_cond.shape}')
+                #print(f'init_cond_shape: {init_cond.shape}')
         return data, out_dict

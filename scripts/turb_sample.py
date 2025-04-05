@@ -58,11 +58,12 @@ def main():
         #########################################################################
         # For empty initial conditions - create a tensor of zeros
         # This will be passed as x_cond to the model
-        empty_initial_conditions = th.zeros(
+        empty_initial_conditions = th.rand(
             (args.batch_size, args.in_channels, 10),
             dtype=th.float32,
             device=dist_util.dev()
         )
+        
         if args.init_path is not None:
             initial_conditions = th.tensor(np.load(args.init_path), dtype=th.float32,device=dist_util.dev())
             # reshape

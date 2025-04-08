@@ -1,8 +1,8 @@
 # Set the flags
-DATA_FLAGS="--dataset_path datasets/trajectories_normalized_cond_mirr-1.h5 --dataset_name train"
+DATA_FLAGS="--dataset_path datasets/trajectories_normalized_cond.h5 --dataset_name train"
 MODEL_FLAGS="--dims 1 --image_size 40 --in_channels 3 --num_channels 32 --num_res_blocks 2 --attention_resolutions 20,10 --channel_mult 1,2,4"
 DIFFUSION_FLAGS="--diffusion_steps 800 --noise_schedule tanh6,1"
-TRAIN_FLAGS="--lr 1e-4 --batch_size 32 --lr_anneal_steps 500000 --save_interval 50000 --init_cond True"
+TRAIN_FLAGS="--lr 1e-4 --batch_size 32 --lr_anneal_steps 250000 --save_interval 50000 --init_cond True"
 
 # Training command
 python scripts/turb_train.py $DATA_FLAGS $MODEL_FLAGS $DIFFUSION_FLAGS $TRAIN_FLAGS

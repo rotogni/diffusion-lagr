@@ -58,15 +58,17 @@ def main():
         #########################################################################
         # For empty initial conditions - create a tensor of zeros
         # This will be passed as x_cond to the model
-        empty_initial_conditions = th.zeros(
+        empty_initial_conditions = th.randn(
             (args.batch_size, args.in_channels, 10),
             dtype=th.float32,
             device=dist_util.dev()
         )
+        
         if args.init_path is not None:
             initial_conditions = th.tensor(np.load(args.init_path), dtype=th.float32,device=dist_util.dev())
             # reshape
             initial_conditions = th.transpose(initial_conditions, 1, 2)
+            print(initial_conditions.shape)
             assert(initial_conditions.shape == empty_initial_conditions.shape)
             model_kwargs["x_cond"] = initial_conditions
         else:
@@ -113,7 +115,7 @@ def main():
         label_arr = label_arr[: args.num_samples]
     if dist.get_rank() == 0:
         shape_str = "x".join([str(x) for x in arr.shape])
-        out_path = os.path.join("/content/drive/MyDrive/diff-lagr/samples/", f"samples_{shape_str}.npz")
+        out_path = os.path.join("/home/rotogni/diffusion-lagr/", f"samples_{shape_str}.npz")
         logger.log(f"saving to {out_path}")
         if args.class_cond:
             np.savez(out_path, arr, label_arr)

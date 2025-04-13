@@ -682,7 +682,7 @@ class Vizualisation:
 def main():
         #str = "./Diffusion/ema_0.9999_250000/u3c_samples_16x300x3.npy"
         #str = "Diffusion/version_mirrored/ema_0.9999_250000/u3c_samples_32x280x3_frustum.npy"
-        str = 'pos_samples_256x40x3_cond_01.npy'
+        str = f'/home/rotogni/diffusion-lagr/pos_samples_256x60x3_cond_60_att_04.npy'
         viz = Vizualisation()
         trajectories = np.load(str)
         # 16 x 300 x 3
@@ -691,18 +691,23 @@ def main():
         str = str.replace('.npy', '')
         str = str.replace('/', '_')
                  
-            
+        trajectories_total = np.zeros((256,240,3))
         colours = plt.cm.jet(np.linspace(0, 1, 32))
         
-        for i in range(32):
+        for i in range(96,128):
             trajectories = np.zeros_like(trajectories)
-            for j in range(1,8):  
-                str = f'pos_samples_256x40x3_cond_{j:02d}.npy'
+            for j in range(1,5):  
+                
+                str = f'/home/rotogni/diffusion-lagr/pos_samples_256x60x3_cond_60_att_{j:02d}.npy'
                 trajectories = np.load(str) +  trajectories[i,-1,:] 
-                colour = colours[i]
+               
+                trajectories_total[:,(j-1)*60:(j)*60,:] = np.load(str) +  trajectories_total[:,(j-1)*60-1,:].reshape((256,1,3)) 
+                colour = colours[i-96]
                 viz.draw_samples(idx=i, title=f'trajectories_{str}', trajectory= trajectories[i,:,:], colour = colour)
-    
-        plt.savefig(f'trajectories_{str}.pdf')
+
+        pos_filename = '/home/rotogni/diffusion-lagr/pos_samples_256x240x3_cond_60_att'
+        #np.save(pos_filename, trajectories_total)
+        plt.savefig(f'{str}.pdf')
         plt.show()
 
     

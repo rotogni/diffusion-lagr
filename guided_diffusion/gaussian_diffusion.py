@@ -13,7 +13,7 @@ import torch as th
 
 from .nn import mean_flat
 from .losses import normal_kl, discretized_gaussian_log_likelihood
-
+from scripts import frustum
 
 def get_named_beta_schedule(schedule_name, num_diffusion_timesteps):
     """
@@ -447,6 +447,8 @@ class GaussianDiffusion:
             model_kwargs=model_kwargs,
         )
         noise = th.randn_like(x)
+        #mask = frustum.create_frustum_mask(points = noise, fov_angle=45,initial_radius=0.5)
+        #noise  = frustum.apply_frustum_mask(points = noise, mask = mask )
         nonzero_mask = (
             (t != 0).float().view(-1, *([1] * (len(x.shape) - 1)))
         )  # no noise when t == 0
@@ -538,7 +540,7 @@ class GaussianDiffusion:
             assert isinstance(shape, (tuple, list))
             if device is None:
                 device = next(model.parameters()).device
-            noise = th.randn(*shape, device=device)
+            noise = th.randn(*shape, device=device) # modify maybe noise shape
 
         sample_history = [noise]
         for sample in self.p_sample_loop_progressive(
@@ -582,8 +584,6 @@ class GaussianDiffusion:
             img = noise
         else:
             img = th.randn(*shape, device=device)
-            print(img.shape)
-            print(img.max().item())
         indices = list(range(self.num_timesteps))[::-1]
 
         if progress:
@@ -651,6 +651,7 @@ class GaussianDiffusion:
             out["pred_xstart"] * th.sqrt(alpha_bar_prev)
             + th.sqrt(1 - alpha_bar_prev - sigma ** 2) * eps
         )
+        # mask for padding?
         nonzero_mask = (
             (t != 0).float().view(-1, *([1] * (len(x.shape) - 1)))
         )  # no noise when t == 0

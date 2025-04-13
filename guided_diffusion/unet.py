@@ -469,7 +469,7 @@ class UNetModel(nn.Module):
         self.num_head_channels = num_head_channels
         self.num_heads_upsample = num_heads_upsample
         ##############################################################################
-        self.encoder_channels = in_channels,
+        self.encoder_channels = in_channels  if use_encoder_conditioning else None,
         self.use_encoder_conditioning = use_encoder_conditioning,
         ##############################################################################
         time_embed_dim = model_channels * 4
@@ -485,14 +485,15 @@ class UNetModel(nn.Module):
             self.label_emb = nn.Embedding(num_classes, time_embed_dim)
 
         ##############################################################################
-        self.cond_encoder = nn.Sequential(
-            nn.Flatten(1),  # Flatten the spatial dimensions: (B, 10, 3) -> (B, 30)
-            nn.Linear(10 * 3, model_channels),  # Project to model_channels first
-            nn.SiLU(),
-            nn.Linear(model_channels, time_embed_dim),  # Then to time_embed_dim
-            nn.SiLU(),
-            nn.Linear(time_embed_dim, time_embed_dim),  # Keep this part from original
-        )
+        if self.use_encoder_conditioning:
+            self.cond_encoder = nn.Sequential(
+                nn.Flatten(1),  # Flatten the spatial dimensions: (B, 10, 3) -> (B, 30)
+                nn.Linear(10 * 3, model_channels),  # Project to model_channels first
+                nn.SiLU(),
+                nn.Linear(model_channels, time_embed_dim),  # Then to time_embed_dim
+                nn.SiLU(),
+                nn.Linear(time_embed_dim, time_embed_dim),  # Keep this part from original
+            )
         
          #print(f"Cond Encoder architecture: {self.cond_encoder}")
         

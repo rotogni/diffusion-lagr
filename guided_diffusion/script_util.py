@@ -65,6 +65,7 @@ def model_and_diffusion_defaults():
         channel_mult="",
         dropout=0.0,
         class_cond=False,
+        init_cond=False,
         use_checkpoint=False,
         use_scale_shift_norm=True,
         resblock_updown=False,
@@ -86,6 +87,7 @@ def create_model_and_diffusion(
     image_size,
     in_channels,
     class_cond,
+    init_cond,
     learn_sigma,
     num_channels,
     num_res_blocks,
@@ -117,6 +119,7 @@ def create_model_and_diffusion(
         channel_mult=channel_mult,
         learn_sigma=learn_sigma,
         class_cond=class_cond,
+        init_cond = init_cond,
         use_checkpoint=use_checkpoint,
         attention_resolutions=attention_resolutions,
         num_heads=num_heads,
@@ -150,6 +153,7 @@ def create_model(
     channel_mult="",
     learn_sigma=False,
     class_cond=False,
+    init_cond=False,
     use_checkpoint=False,
     attention_resolutions="16",
     num_heads=1,
@@ -198,6 +202,7 @@ def create_model(
         use_scale_shift_norm=use_scale_shift_norm,
         resblock_updown=resblock_updown,
         use_new_attention_order=use_new_attention_order,
+        use_encoder_conditioning = init_cond
     )
 
 
